@@ -1,21 +1,35 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-ajax/core-ajax.html">
+<link rel="import" href="lib/firebase-import.html">
 
-<polymer-element name="th-firebase" attributes="firebase directory">
-  <link rel="import" href="lib/firebase-import.html">
+<polymer-element name="th-firebase" attributes="locationRequestRoute location directory">
+  <template>
+    <core-ajax auto 
+      id="token"
+      url="{{locationRequestRoute}}"
+      handleAs="text"  
+      on-core-response="{{_receiveLocation}}">
+    </core-ajax>
 
+  </template>  
   <script>
     Polymer('th-firebase', {
       data: null,
-      firebase: 'https://shining-fire-6376.firebaseio.com/',
+      locationRequestRoute: '/admin/token/THELMA_FIREBASE_URL'
+      location: null,
       directory: "",
-      ready: function(){
+      _receiveLocation: function(event, r){
         var self = this;
-        self.dataRef = new Firebase(self.firebase+self.directory);
+        if (event.detail.response){
+          self.location = self.location || event.detail.response; 
+          self.dataRef = new Firebase(self.location+self.directory); 
+        }
+        console.log(self.location);
       },
       save: function(data, subdirectory){
         var self = this;
         if (subdirectory){  
-          self.dataRef = new Firebase(self.firebase + self.directory + subdirectory);
+          self.dataRef = new Firebase(self.location + self.directory + subdirectory);
           self.dataRef.set(data);
         } else {
           self.dataRef.push(data);
@@ -23,7 +37,7 @@
       },
       load: function(subdirectory){
         var self = this;
-        self.dataRef = new Firebase(self.firebase + self.directory + subdirectory);
+        self.dataRef = new Firebase(self.location + self.directory + subdirectory);
         
         self.dataRef.on('value', function(snapshot){
           self.data = snapshot.val();
