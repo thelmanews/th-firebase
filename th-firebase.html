@@ -19,34 +19,50 @@
       location: null,
       directory: "",
       _receiveLocation: function(event, r){
+        console.log("****");
+        console.log("got location");
         var self = this;
         if (event.detail.response){
           self.location = self.location || event.detail.response; 
           self.dataRef = new Firebase(self.location+self.directory); 
         }
-        console.log(self.location);
       },
       save: function(data, subdirectory){
+        console.log("****");
+        console.log("save");
         var self = this;
-        if (subdirectory){  
-          self.dataRef = new Firebase(self.location + self.directory + subdirectory);
-          self.dataRef.set(data);
-        } else {
-          self.dataRef.push(data);
-        }
+        var locationInterval = setInterval(function(){
+          if(self.location){
+            if (subdirectory){  
+              self.dataRef = new Firebase(self.location + self.directory + subdirectory);
+              self.dataRef.set(data);
+            } else {
+              self.dataRef.push(data);
+            }
+            clearInterval(locationInterval);
+          }
+        },10)
       },
       load: function(subdirectory){
+        console.log("****");
+        console.log("load");
         var self = this;
-        self.dataRef = new Firebase(self.location + self.directory + subdirectory);
-        
-        self.dataRef.on('value', function(snapshot){
-          self.data = snapshot.val();
-          if (self.data){
-            self.asyncFire('th-data-ready', self.data);
-          } else {
-            self.asyncFire('th-data-error', "No such data.");
+
+        var locationInterval = setInterval(function(){
+          if(self.location){
+            self.dataRef = new Firebase(self.location + self.directory + subdirectory);
+            self.dataRef.on('value', function(snapshot){
+              self.data = snapshot.val();
+              if (self.data){
+                self.asyncFire('th-data-ready', self.data);
+              } else {
+                self.asyncFire('th-data-error', "No such data.");
+              }
+            });
+            clearInterval(locationInterval);
           }
-        }); 
+        },10)
+         
 
       }
       
