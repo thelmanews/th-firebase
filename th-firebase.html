@@ -19,8 +19,6 @@
       location: null,
       directory: "",
       _receiveLocation: function(event, r){
-        console.log("****");
-        console.log("got location");
         var self = this;
         if (event.detail.response){
           self.location = self.location || event.detail.response; 
@@ -28,8 +26,6 @@
         }
       },
       save: function(data, subdirectory){
-        console.log("****");
-        console.log("save");
         var self = this;
         var locationInterval = setInterval(function(){
           if(self.location){
@@ -47,7 +43,6 @@
         console.log("****");
         console.log("load");
         var self = this;
-
         var locationInterval = setInterval(function(){
           if(self.location){
             self.dataRef = new Firebase(self.location + self.directory + subdirectory);
@@ -62,8 +57,6 @@
             clearInterval(locationInterval);
           }
         },10)
-         
-
       }
       
     });
